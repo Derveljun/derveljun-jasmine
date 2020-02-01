@@ -10,8 +10,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 @Data
+@Service
 public class PdfMainController implements Initializable {
 
     private ConfigurableApplicationContext context;
@@ -35,7 +36,6 @@ public class PdfMainController implements Initializable {
     @FXML
     public TextArea txtAreaLog;
 
-    @Autowired
     private PdfService pdfService;
     private Alert alertWarning;
     private DirectoryChooser directoryChooser;
@@ -43,6 +43,7 @@ public class PdfMainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        pdfService = new PdfService();
         alertWarning = new Alert(Alert.AlertType.WARNING);
         directoryChooser = new DirectoryChooser();
 
@@ -71,6 +72,12 @@ public class PdfMainController implements Initializable {
 
             try {
                 pdfService.images2Pdf(sourceDir, targetDir, fileName);
+
+                // TODO rxJava로 바꾸기
+                // TODO 완료 표시처리
+                // TODO 진행 표시
+                // TODO 폴더 리스트로 변경
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

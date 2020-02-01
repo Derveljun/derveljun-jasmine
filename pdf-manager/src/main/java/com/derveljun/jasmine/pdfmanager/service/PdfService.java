@@ -1,25 +1,25 @@
 package com.derveljun.jasmine.pdfmanager.service;
 
-import com.derveljun.jasmine.pdfmanager.fx.PdfMainController;
-import javafx.scene.control.TextArea;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
-@Component
 public class PdfService {
 
     int totalCnt = 0;
@@ -29,34 +29,41 @@ public class PdfService {
         File pdfFile = createPdf(targetDir, targetPdfFileName);
         PDDocument doc = PDDocument.load(pdfFile);
 
-        Files.walk(Paths.get(targetDir))
-                .filter(f -> f.endsWith("jpg"))
-                .map(f -> {
-                    File curFile = f.toFile();
-                    Image curImg = null;
-                    try {
-                        curImg = ImageIO.read(curFile);
-                        float imgWidth = curImg.getWidth(null);
-                        float imgHeigth = curImg.getHeight(null);
+        Stream<Path> pathStream = Files.walk(Paths.get(sourceDir + "\\"));
+        log.info("count : " + pathStream.count());
 
-                        // Fit a PDF Page by Image Height Length
-                        PDImageXObject pdImage = PDImageXObject.createFromFileByContent(curFile, doc);
-                        PDRectangle newRect = new PDRectangle(0, 0, imgWidth, imgHeigth);
-                        PDPage newPage = new PDPage(newRect);
-                        doc.addPage(newPage);
+        List<File> fileList = Files.walk(Paths.get(sourceDir + "\\"))
+                .filter(Files::isRegularFile)
+                .filter(f -> {
+                    log.info(f.getFileName().toString());
+                    return true;
+                })
+                .map(f -> f.toFile())
+                .collect(Collectors.toList());
 
-                        // Write a PDImageXObject to PDF
-                        PDPageContentStream contents = new PDPageContentStream(doc, newPage);
-                        contents.drawImage(pdImage, 0, 0, imgWidth, imgHeigth);
-                        contents.close();
-                        log.info("Page " + (totalCnt++) + " was Drawed at PDF File.");
+        for(File curFile : fileList) {
+            Image curImg = null;
+            try {
+                curImg = ImageIO.read(curFile);
+                float imgWidth = curImg.getWidth(null);
+                float imgHeigth = curImg.getHeight(null);
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                // Fit a PDF Page by Image Height Length
+                PDImageXObject pdImage = PDImageXObject.createFromFileByContent(curFile, doc);
+                PDRectangle newRect = new PDRectangle(0, 0, imgWidth, imgHeigth);
+                PDPage newPage = new PDPage(newRect);
+                doc.addPage(newPage);
 
-                    return null;
-                });
+                // Write a PDImageXObject to PDF
+                PDPageContentStream contents = new PDPageContentStream(doc, newPage);
+                contents.drawImage(pdImage, 0, 0, imgWidth, imgHeigth);
+                contents.close();
+                log.info("Page " + (totalCnt++) + " was Draw at PDF File.");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         // Saving the document
         doc.save(pdfFile);

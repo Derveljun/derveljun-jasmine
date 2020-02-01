@@ -1,6 +1,7 @@
 package com.derveljun.jasmine.pdfmanager;
 
 import com.derveljun.jasmine.pdfmanager.fx.PdfMainController;
+import com.derveljun.jasmine.pdfmanager.service.PdfService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -36,7 +37,6 @@ public class PdfManagerApplication extends Application {
 
         PdfMainController controller = new PdfMainController();
         controller.setStage(primaryStage);
-        controller.setContext(context);
     }
 
     @Override
