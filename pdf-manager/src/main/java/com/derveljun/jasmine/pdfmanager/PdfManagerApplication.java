@@ -1,7 +1,6 @@
 package com.derveljun.jasmine.pdfmanager;
 
-import com.derveljun.jasmine.pdfmanager.fx.PdfMainController;
-import com.derveljun.jasmine.pdfmanager.service.PdfService;
+import com.derveljun.jasmine.pdfmanager.client.PdfMainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -32,7 +31,7 @@ public class PdfManagerApplication extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/PdfMain.fxml"));
         primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 1000, 275));
+        primaryStage.setScene(new Scene(root));
         primaryStage.show();
 
         PdfMainController controller = new PdfMainController();

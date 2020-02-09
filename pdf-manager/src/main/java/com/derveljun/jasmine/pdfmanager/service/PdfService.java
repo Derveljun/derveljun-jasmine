@@ -22,55 +22,6 @@ import java.util.stream.Stream;
 @Slf4j
 public class PdfService {
 
-    int totalCnt = 0;
-    public void images2Pdf(String sourceDir, String targetDir, String targetPdfFileName) throws Exception {
-
-        log.debug("\n\n -- Create New PDF --");
-        File pdfFile = createPdf(targetDir, targetPdfFileName);
-        PDDocument doc = PDDocument.load(pdfFile);
-
-        Stream<Path> pathStream = Files.walk(Paths.get(sourceDir + "\\"));
-        log.info("count : " + pathStream.count());
-
-        List<File> fileList = Files.walk(Paths.get(sourceDir + "\\"))
-                .filter(Files::isRegularFile)
-                .filter(f -> {
-                    log.info(f.getFileName().toString());
-                    return true;
-                })
-                .map(f -> f.toFile())
-                .collect(Collectors.toList());
-
-        for(File curFile : fileList) {
-            Image curImg = null;
-            try {
-                curImg = ImageIO.read(curFile);
-                float imgWidth = curImg.getWidth(null);
-                float imgHeigth = curImg.getHeight(null);
-
-                // Fit a PDF Page by Image Height Length
-                PDImageXObject pdImage = PDImageXObject.createFromFileByContent(curFile, doc);
-                PDRectangle newRect = new PDRectangle(0, 0, imgWidth, imgHeigth);
-                PDPage newPage = new PDPage(newRect);
-                doc.addPage(newPage);
-
-                // Write a PDImageXObject to PDF
-                PDPageContentStream contents = new PDPageContentStream(doc, newPage);
-                contents.drawImage(pdImage, 0, 0, imgWidth, imgHeigth);
-                contents.close();
-                log.info("Page " + (totalCnt++) + " was Draw at PDF File.");
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Saving the document
-        doc.save(pdfFile);
-        // Closing the document
-        doc.close();
-    }
-
     private File createPdf(String dirPath, String fileName) throws Exception {
         // Directory Check
         File dir = new File(dirPath);
@@ -93,5 +44,52 @@ public class PdfService {
 
         return pdfFile;
     }
+
+    int totalCnt = 0;
+    public void images2Pdf(String sourceDir, String targetDir, String targetPdfFileName) throws Exception {
+
+        log.debug("\n\n -- Create New PDF --");
+        File pdfFile = createPdf(targetDir, targetPdfFileName);
+        PDDocument doc = PDDocument.load(pdfFile);
+
+        Stream<Path> pathStream = Files.walk(Paths.get(sourceDir + "\\"));
+        log.info("count : " + pathStream.count());
+
+        List<File> fileList = Files.walk(Paths.get(sourceDir + "\\"))
+                .filter(Files::isRegularFile)
+                .map(path -> path.toFile())
+                .collect(Collectors.toList());
+
+        for(File curFile : fileList) {
+            Image curImg = null;
+            try {
+                curImg = ImageIO.read(curFile);
+                float imgWidth = curImg.getWidth(null);
+                float imgHeigth = curImg.getHeight(null);
+
+                // Fit a PDF Page by Image Height Length
+                PDImageXObject pdImage = PDImageXObject.createFromFileByContent(curFile, doc);
+                PDRectangle newRect = new PDRectangle(0, 0, imgWidth, imgHeigth);
+                PDPage newPage = new PDPage(newRect);
+                doc.addPage(newPage);
+
+                // Write a PDImageXObject to PDF
+                PDPageContentStream contents = new PDPageContentStream(doc, newPage);
+                contents.drawImage(pdImage, 0, 0, imgWidth, imgHeigth);
+                contents.close();
+
+                log.info("Page " + (totalCnt++) + " was Draw at PDF File.");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Saving the document
+        doc.save(pdfFile);
+        // Closing the document
+        doc.close();
+    }
+
 
 }
