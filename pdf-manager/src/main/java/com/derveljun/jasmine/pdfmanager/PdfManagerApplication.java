@@ -13,11 +13,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication
 public class PdfManagerApplication extends Application {
 
-    private String[] args;
     private ConfigurableApplicationContext context;
 
     public static void main(String[] args) {
-//        args = args;
         launch(args);
     }
 

@@ -31,11 +31,13 @@ public class PdfService {
         if (!dir.isDirectory()) {
             throw new Exception("dirPath is not dir");
         }
+
         // File Check
         File pdfFile = new File(dirPath + File.separator + fileName + ".pdf");
         if (pdfFile.exists()) {
             pdfFile.delete();
         }
+
         PDDocument document = new PDDocument();
         document.save(pdfFile);
         document.close();
@@ -61,9 +63,8 @@ public class PdfService {
                 .collect(Collectors.toList());
 
         for(File curFile : fileList) {
-            Image curImg = null;
             try {
-                curImg = ImageIO.read(curFile);
+                Image curImg = ImageIO.read(curFile);
                 float imgWidth = curImg.getWidth(null);
                 float imgHeigth = curImg.getHeight(null);
 
@@ -87,6 +88,7 @@ public class PdfService {
 
         // Saving the document
         doc.save(pdfFile);
+
         // Closing the document
         doc.close();
     }
